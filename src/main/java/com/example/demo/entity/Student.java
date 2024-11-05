@@ -11,12 +11,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @Builder
-public class Student extends Person {
-    Integer groupId;
-    List<Course> courses;
-    public Student(Integer id, String name, Date birthday, Integer groupId, List<Course> courses) {
-        super(id, name, birthday);
-        this.groupId = groupId;
-        this.courses = courses;
-    }
+public class Student {
+    Integer id;
+    String name;
+    Date birthday;
+    String group;
+    String ulearnId;
+    Course courses;
 }

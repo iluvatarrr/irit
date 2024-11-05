@@ -13,8 +13,8 @@ import java.util.List;
 public class Theme {
     Integer id;
     String title;
-    Integer fullScore;
-    List<Practice> practices;
-    List<Exercise> exercises;
-    List<Activity> activities;
+    Integer fullScoreQuestion;
+    Integer fullScoreHomeTask;
+    Integer fullScoreExercise;
+    List<Task> tasks;
 }
