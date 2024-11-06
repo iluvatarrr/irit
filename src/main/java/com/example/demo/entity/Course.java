@@ -13,6 +13,7 @@ import java.util.List;
 public class Course {
     Integer id;
     String title;
+    AllCourseData allCourseDataMax;
     List<Theme> themeList;
     List<Student> studentList;
 }
