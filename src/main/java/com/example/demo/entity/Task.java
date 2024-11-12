@@ -14,4 +14,9 @@ public class Task {
     TaskType type;
     Integer maxScore;
     Integer score;
+
+    @Override
+    public String toString() {
+        return "Задание - %s. Тип - %s. Максимальный балл - %s".formatted(title, type, maxScore);
+    }
 }

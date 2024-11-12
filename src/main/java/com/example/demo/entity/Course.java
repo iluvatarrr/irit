@@ -13,7 +13,12 @@ import java.util.List;
 public class Course {
     Integer id;
     String title;
-    AllCourseData allCourseDataMax;
+    ItemData allCourseScoreMax;
     List<Theme> themeList;
-    List<Student> studentList;
+//    List<Student> studentList;
+
+    @Override
+    public String toString() {
+        return "Курс: Название курса - %s.  Полный балл курса - %s".formatted(title, allCourseScoreMax);
+    }
 }

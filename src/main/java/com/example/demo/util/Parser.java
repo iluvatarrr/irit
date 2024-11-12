@@ -6,16 +6,13 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 public class Parser {
 
@@ -43,9 +40,11 @@ public class Parser {
             var studentExercise = Integer.parseInt(stringsOfCSV[3]);
             var studentHomeTask = Integer.parseInt(stringsOfCSV[4]);
             var studentQuestion = Integer.parseInt(stringsOfCSV[5]);
-            result.add(new Student(countId, name, new Date(),group, ulearnId, new Course(courseId,courseName,
-                    new AllCourseData(courseId, courseMaxExercise, courseMaxHomeTasks, courseMaxQuestion), parseTheme(stringsOfCSV ,themes, tasks, tasksMax), null),
-                    new AllCourseData(countId, studentExercise, studentHomeTask, studentQuestion)));
+            //Дату буда подтягивать через VK api, пока символически, потом enrich
+            result.add(new Student(countId, name, new Date(),group, ulearnId, new ItemData(countId, studentExercise, studentHomeTask, studentQuestion),
+                    new Course(courseId,courseName,
+                            new ItemData(courseId, courseMaxExercise, courseMaxHomeTasks, courseMaxQuestion),
+                            parseTheme(stringsOfCSV, themes, tasks, tasksMax))));
             countId++;
         }
         return result;
@@ -53,45 +52,64 @@ public class Parser {
 
     private static ArrayList<Theme> parseTheme(String[] dataOfUser, String[] themes, String[] tasks, String[] tasksMax) {
         var result = new ArrayList<Theme>();
-        var themeName = "";
+        var themeName = themes[6];
+        var lastTheme = "";
         var typeOfActive = "";
         var currentTasks = new ArrayList<Task>();
-        var fullScoreQuestion = 0;
-        var fullScoreHomeTask = 0;
-        var fullScoreExercise = 0;
+        ItemData fullScoreByPerson = new ItemData();
+        ItemData fullScoreByItem = new ItemData();
         var counterTasks = 1;
+        Theme theme = null;
         for (var i = 6; i < dataOfUser.length; i++) {
-            if (!themes[i].isEmpty() && themeName.isEmpty()) {
+            if (!themes[i].isEmpty() && !Objects.equals(themeName, lastTheme)) {
+                if (theme!=null) {
+                    lastTheme = themeName;
+                    var themeId = Integer.parseInt(themeName.split("\\.")[0]);
+                    mapTheme(theme, themeId, themeName, fullScoreByPerson ,fullScoreByItem, currentTasks);
+                    result.add(theme);
+                    currentTasks = new ArrayList<>();
+                    fullScoreByPerson = new ItemData();
+                    fullScoreByItem = new ItemData();
+                    counterTasks = 1;
+                }
+                theme = new Theme();
                 themeName = themes[i];
             }
-            if (List.of("КВ", "УПР", "ДЗ").contains(tasks[i])) {
+            if (List.of("КВ", "УПР", "ДЗ").contains(tasks[i]) && (themeName.equals(themes[i]) || themes[i].isEmpty())) {
                 typeOfActive = tasks[i];
                 switch (typeOfActive) {
                     case "КВ":
-                        fullScoreQuestion = Integer.parseInt(dataOfUser[i]);
+                        fullScoreByItem.setQuestionMax(Integer.parseInt(tasksMax[i]));
+                        fullScoreByPerson.setQuestionMax(Integer.parseInt(dataOfUser[i]));
                         break;
                     case "ДЗ":
-                        fullScoreHomeTask = Integer.parseInt(dataOfUser[i]);
+                        fullScoreByItem.setHomeTaskMax(Integer.parseInt(tasksMax[i]));
+                        fullScoreByPerson.setHomeTaskMax(Integer.parseInt(dataOfUser[i]));
                         break;
                     case "УПР":
-                        fullScoreExercise = Integer.parseInt(dataOfUser[i]);
+                        fullScoreByItem.setExerciseMax(Integer.parseInt(tasksMax[i]));
+                        fullScoreByPerson.setExerciseMax(Integer.parseInt(dataOfUser[i]));
                         break;
                 }
             }
-            if (themes[i].isEmpty()) {
+            if (themes[i].isEmpty() && !List.of("КВ", "УПР", "ДЗ").contains(tasks[i])) {
                 currentTasks.add(new Task(counterTasks, tasks[i], TaskType.valueOf(typeOfActive), Integer.parseInt(tasksMax[i]),Integer.parseInt(dataOfUser[i])));
                 counterTasks++;
             }
-
-            if (!themes[i].isEmpty() && !themeName.isEmpty()) {
-                var themeId = Integer.parseInt(themeName.split("\\.")[0]);
-                result.add(new Theme(themeId,themeName, fullScoreQuestion, fullScoreHomeTask, fullScoreExercise, currentTasks));
-                themeName = themes[i];
-                currentTasks = new ArrayList<Task>();
-                counterTasks = 1;
-            }
         }
+        assert theme != null;
+        mapTheme(theme, result.size() + 1, themeName, fullScoreByPerson, fullScoreByItem, currentTasks);
+        result.add(theme);
         return result;
     }
-}
 
+    private static void mapTheme(Theme theme, int themeId, String themeName,ItemData fullScoreByPerson, ItemData fullScoreByItem, ArrayList<Task> currentTasks) {
+        theme.setId(themeId);
+        theme.setTitle(themeName);
+        fullScoreByItem.setId(themeId);
+        fullScoreByPerson.setId(themeId);
+        theme.setFullScoreByItem(fullScoreByItem);
+        theme.setFullScoreByPerson(fullScoreByPerson);
+        theme.setTasks(currentTasks);
+    }
+}
