@@ -17,6 +17,11 @@ public class Student {
     Date birthday;
     String group;
     String ulearnId;
-    Course courses;
-    AllCourseData allCourseData;
+    ItemData allCourseScore;
+    Course course;
+
+    @Override
+    public String toString() {
+        return "Студент - %s. %s Состоящий в группе - %s. %s Под id: %s. %s За весь курс набрал: %s".formatted(name, "\n", group, "\n", ulearnId,"\n", allCourseScore);
+    }
 }
