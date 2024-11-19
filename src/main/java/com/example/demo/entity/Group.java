@@ -13,4 +13,9 @@ import java.util.List;
 public class Group {
    Integer id;
    List<Student> students;
+
+   @Override
+   public String toString() {
+      return "Группа - %s".formatted(id);
+   }
 }
