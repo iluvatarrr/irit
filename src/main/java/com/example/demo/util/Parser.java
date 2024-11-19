@@ -40,8 +40,7 @@ public class Parser {
             var studentExercise = Integer.parseInt(stringsOfCSV[3]);
             var studentHomeTask = Integer.parseInt(stringsOfCSV[4]);
             var studentQuestion = Integer.parseInt(stringsOfCSV[5]);
-            //Дату буда подтягивать через VK api, пока символически, потом enrich
-            result.add(new Student(countId, name, new Date(),group, ulearnId, new ItemData(countId, studentExercise, studentHomeTask, studentQuestion),
+            result.add(new Student(countId, name, " ",group, ulearnId, new ItemData(countId, studentExercise, studentHomeTask, studentQuestion),
                     new Course(courseId,courseName,
                             new ItemData(courseId, courseMaxExercise, courseMaxHomeTasks, courseMaxQuestion),
                             parseTheme(stringsOfCSV, themes, tasks, tasksMax))));

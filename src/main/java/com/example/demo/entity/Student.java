@@ -14,7 +14,7 @@ import java.util.List;
 public class Student {
     Integer id;
     String name;
-    Date birthday;
+    String birthday;
     String group;
     String ulearnId;
     ItemData allCourseScore;
