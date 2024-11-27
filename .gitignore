@@ -25,7 +25,9 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+src/main/resources/static/.properties
+src/main/resources/static/appId.txt
+src/main/resources/static/token.txt
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -35,3 +37,4 @@ out/
 
 ### VS Code ###
 .vscode/
+/src/main/resources/static/token.txt

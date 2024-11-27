@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 public class Theme {
-    Integer id;
     String title;
     ItemData fullScoreByPerson;
     ItemData fullScoreByItem;
