@@ -1,40 +1,50 @@
 package com.example.demo.contoller;
 
+import com.example.demo.dto.StudentsDTO;
+import com.example.demo.entity.StudentEntity;
 import com.example.demo.model.Student;
+import com.example.demo.service.GroupEntityService;
 import com.example.demo.service.StudentEntityService;
-import com.example.demo.util.Parser;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController()
+@Controller()
 @RequestMapping("/students")
 public class StudentController {
 
     private final StudentEntityService studentEntityService;
-
+    private final GroupEntityService groupEntityService;
     @Autowired
-    public StudentController(StudentEntityService studentEntityService) {
+    public StudentController(StudentEntityService studentEntityService, GroupEntityService groupEntityService) {
         this.studentEntityService = studentEntityService;
+        this.groupEntityService = groupEntityService;
     }
 
-    @GetMapping
-    public List<Student> getAllStudents() {
-        return studentEntityService.findAll();
+    @GetMapping("/all")
+    public String getAllStudents(Model model, @PageableDefault(size = 10) Pageable pageable) {
+        Page<StudentsDTO> page = studentEntityService.findAll(pageable);
+        model.addAttribute("items", page.getContent());
+        model.addAttribute("currentPage", page.getNumber());
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("students", page.getContent());
+        return "students/all";
     }
 
     @GetMapping("/{id}")
-    public Student getStudent(@PathVariable int id) {
-        return studentEntityService.findById(id);
+    public String  getStudent(@PathVariable int id, Model model) {
+        model.addAttribute("student", studentEntityService.findById(id));
+        return "students/show";
     }
 
-    @PostMapping
-    public ResponseEntity<HttpStatus> createTrain() {
+    @PostMapping("/update")
+    public String updateData() {
+        if (!groupEntityService.findAll().isEmpty()) return "main/main";
         studentEntityService.saveStudents(studentEntityService.getParseData("src/main/resources/static/schema/itisbaase.csv"));
-        return ResponseEntity.ok(HttpStatus.CREATED);
+        return "main/main";
     }
 }

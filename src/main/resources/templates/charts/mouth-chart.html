@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Графики</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+</head>
+    <body>
+        <header class="header">
+            <nav class="main-nav">
+                <h1 class="logo"><a href="/main/main">JavaRTFAnalytics</a></h1>
+                <ul class="site-navigation">
+                    <li class="site-navigation-item">
+                        <a href="/students/all">Студенты</a>
+                    </li>
+                    <li class="site-navigation-item">
+                        <a href="/charts/mouth-chart">Успеваемость по месяцам</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <div class="wrapper">
+                <h1>Графики</h1>
+                <img th:src="@{/charts/mouth-chart/image-all}" alt="График" />
+                <img th:src="@{/charts/mouth-chart/image-home}" alt="График" />
+                <img th:src="@{/charts/mouth-chart/image-question}" alt="График" />
+                <img th:src="@{/charts/mouth-chart/image-exercises}" alt="График" />
+            </div>
+        </main>
+    </body>
+</html>

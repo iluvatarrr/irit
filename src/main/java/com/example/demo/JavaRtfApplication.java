@@ -28,7 +28,4 @@ public class JavaRtfApplication {
 
 	@Bean
 	public VkRepository VkRepository() { return new VkRepository(); }
-
-//	@Bean
-//	public VkService VkService() { return new VkService(); }
 }

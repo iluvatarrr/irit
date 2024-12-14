@@ -12,12 +12,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Service
 public class VkService {
 
     private final VkRepository vkRepository;
-
+    private Integer countOdStudents = 0;
     @Autowired
     public VkService(VkRepository vkRepository) {
         this.vkRepository = vkRepository;
@@ -25,26 +29,39 @@ public class VkService {
 
     @SneakyThrows
     public List<Student> enrichStudents(List<Student> students) {
-        var c = 0;
         List<String> groups = List.of("Третий курс ИОТ, УрФУ", "Союз студентов УрФУ #posnews");
         List<Integer> groupsId = enrichGroupList(groups);
         var studentDct = new HashMap<String, UserFull>();
+        ExecutorService executor = Executors.newFixedThreadPool(7);
+        List<Callable<Void>> tasks = new ArrayList<>();
         for (var s : students) {
-            var name = s.getName();
-            for (var i = 0; i < groupsId.size() && studentDct.get(name) == null; i++) {
-                var userFull = vkRepository.getUserByNameAndGroup(name, groupsId.get(i));
-                if (userFull != null && !userFull.isEmpty()) {
-                    var user = userFull.getFirst();
-                    var bDate =  user.getBdate();
-                    c = updateBirthdayModel(s, bDate, user, c);
-                    studentDct.put(s.getName(), user);
+            tasks.add(() -> {
+                var name = s.getName();
+                for (var i = 0; i < groupsId.size() && studentDct.get(name) == null; i++) {
+                    var userFull = vkRepository.getUserByNameAndGroup(name, groupsId.get(i));
+                    if (userFull != null && !userFull.isEmpty()) {
+                        var user = userFull.getFirst();
+                        var bDate = user.getBdate();
+                        synchronized (studentDct) {
+                            countOdStudents = updateBirthdayModel(s, bDate, user, countOdStudents);
+                            studentDct.put(s.getName(), user);
+                        }
+                    }
+                    Thread.sleep(3000);
                 }
-            }
-            if (studentDct.get(name) == null) {
-                System.out.printf("Студент(ка) %s не найден(а)%n", s.getName());
-            }
-            Thread.sleep(1000);
+                if (studentDct.get(name) == null) {
+                    System.out.printf("Студент(ка) %s не найден(а)%n", s.getName());
+                }
+                return null;
+            });
         }
+
+        List<Future<Void>> futures = executor.invokeAll(tasks);
+
+        for (Future<Void> future : futures) {
+            future.get();
+        }
+        executor.shutdown();
         return students;
     }
     @SneakyThrows

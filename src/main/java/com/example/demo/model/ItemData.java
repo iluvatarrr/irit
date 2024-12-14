@@ -9,9 +9,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 public class ItemData {
-    Integer exerciseMax;
-    Integer homeTaskMax;
-    Integer questionMax;
+    int  exerciseMax;
+    int homeTaskMax;
+    int questionMax;
 
     @Override
     public String toString() {

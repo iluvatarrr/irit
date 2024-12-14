@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Студент</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+</head>
+    <body>
+        <header>
+            <nav class="main-nav">
+                <p class="logo"><a href="/main/main">JavaRTFAnalytics</a></p>
+                <ul class="site-navigation">
+                    <li class="site-navigation-item">
+                        <a href="/students/all">Студенты</a>
+                    </li>
+                    <li class="site-navigation-item">
+                        <a href="/charts/mouth-chart">Успеваемость по месяцам</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <div class="wrapper">
+                <h1>Студент</h1>
+                <p th:text="'Инициалы: ' + ${student.getName()} + '. Группа: ' + ${student.getGroup()}">VALUE</p>
+                <p th:text="'UlearnId: ' + ${student.getUlearn()}">VALUE</p>
+                <div th:if="${student.getBirthday() == null}">
+                    <p>День рожденья не указан.</p>
+                </div>
+                <div th:unless="${student.getBirthday() == null}">
+                    <p th:text="'День рожденья: ' + ${student.getBirthday()}"></p>
+                </div>
+                <img th:src="@{/charts/student/{id}(id=${student.getId()})}" alt="График" />
+                <a href="/students/all">Все студенты</a><br>
+            </div>
+        </main>
+    </body>
+</html>

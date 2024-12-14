@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.StudentsDTO;
 import com.example.demo.entity.*;
 import com.example.demo.model.Student;
 import com.example.demo.model.Theme;
@@ -8,10 +9,15 @@ import com.example.demo.util.Parser;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,13 +38,18 @@ public class StudentEntityService {
         this.vkService = vkService;
     }
 
-    public List<Student> findAll() {
-        return studentEntityRepository.findAll().stream().map(this::createToDTO).toList();
+    public Page<StudentsDTO> findAll(Pageable pageable) {
+        return studentEntityRepository.findAll(pageable).map(this::createToDTO);
     }
-    public Student findById(Integer id) {
+    public List<StudentEntity> findAll() {
+        return studentEntityRepository.findAll();
+    }
+    public StudentsDTO findById(Integer id) {
         return createToDTO(studentEntityRepository.findById(id).orElseGet(StudentEntity::new));
     }
-
+    public StudentEntity findByIdLocal(Integer id) {
+        return studentEntityRepository.findById(id).orElseGet(StudentEntity::new);
+    }
     @Transactional
     public void save(StudentEntity studentEntity) {
         studentEntityRepository.save(studentEntity);
@@ -48,7 +59,7 @@ public class StudentEntityService {
     public void saveStudents(List<Student> students) {
         students = updateByVk(students);
         for (var student : students) {
-            var studentEntity = createFromDTO(student);
+            var studentEntity = createEntityFromModel(student);
             save(studentEntity);
         }
     }
@@ -62,7 +73,7 @@ public class StudentEntityService {
         return parser.mainParse(path);
     }
 
-    private StudentEntity createFromDTO(Student student) {
+    public StudentEntity createEntityFromModel(Student student) {
         var s = modelMapper.map(student, StudentEntity.class);
         GroupEntity group = groupEntityService.findOrCreateGroup(student.getGroup());
         group.getStudentEntities().add(s);
@@ -90,8 +101,14 @@ public class StudentEntityService {
         return s;
     }
 
-    private Student createToDTO(StudentEntity studentEntity) {
+    public Student createToModel(StudentEntity studentEntity) {
         var mappedEntity = modelMapper.map(studentEntity, Student.class);
+        mappedEntity.setGroup(studentEntity.getGroupEntity().getTitle());
+        return mappedEntity;
+    }
+
+    public StudentsDTO createToDTO(StudentEntity studentEntity) {
+        var mappedEntity = modelMapper.map(studentEntity, StudentsDTO.class);
         mappedEntity.setGroup(studentEntity.getGroupEntity().getTitle());
         return mappedEntity;
     }

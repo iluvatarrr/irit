@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 public class GroupEntityService {
@@ -15,6 +17,9 @@ public class GroupEntityService {
     @Autowired
     public GroupEntityService(GroupEntityRepository groupEntityRepository) {
         this.groupEntityRepository = groupEntityRepository;
+    }
+    public List<GroupEntity> findAll() {
+        return groupEntityRepository.findAll();
     }
 
     @Transactional

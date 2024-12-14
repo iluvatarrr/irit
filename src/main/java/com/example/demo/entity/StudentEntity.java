@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +33,6 @@ public class StudentEntity {
     String ulearn;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "studentEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "studentEntity", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<ThemeEntity> themeList;
 }
