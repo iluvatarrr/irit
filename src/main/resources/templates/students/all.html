@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Студенты</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+</head>
+    <body>
+        <header>
+            <nav class="main-nav">
+                <p class="logo"><a href="/main/main">JavaRTFAnalytics</a></p>
+                <ul class="site-navigation">
+                    <li class="site-navigation-item">
+                        <a href="/students/all">Студенты</a>
+                    </li>
+                    <li class="site-navigation-item">
+                        <a href="/charts/mouth-chart">Успеваемость по месяцам</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <div class="wrapper">
+                <h1>Студенты</h1>
+                <div class="students" th:each="s : ${students}">
+                    <a th:href="@{/students/{id}(id=${s.getId()})}" th:text="${s.getName()} + ' ' + ${s.getGroup()}">user</a>
+                </div>
+                <div>
+                    <a th:if="${currentPage > 0}" th:href="@{/students/all(page=${currentPage - 1})}">Previous</a>
+
+                    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                        <span th:if="${i == currentPage}">
+                            <strong th:text="${i + 1}"></strong>
+                        </span>
+                        <span th:if="${i != currentPage}">
+                            <a th:href="@{/students/all(page=${i})}" th:text="${i + 1}"></a>
+                        </span>
+                    </span>
+                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/students/all(page=${currentPage + 1})}">Next</a>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

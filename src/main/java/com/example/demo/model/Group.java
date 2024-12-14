@@ -1,9 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,6 +9,11 @@ import java.util.List;
 @Data
 @Builder
 public class Group {
-   Integer id;
-   List<Student> students;
+
+    String title;
+
+    @Override
+    public String toString() {
+        return "Группа - %s".formatted(title);
+    }
 }

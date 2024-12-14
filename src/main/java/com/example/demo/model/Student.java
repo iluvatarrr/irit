@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,11 +12,15 @@ import java.util.List;
 @Data
 @Builder
 public class Student {
-    Integer id;
+
     String name;
     Date birthday;
     String group;
-    String ulearnId;
-    Course courses;
-    AllCourseData allCourseData;
+    String ulearn;
+    List<Theme> themeList;
+
+    @Override
+    public String toString() {
+        return "Студент - %s. %s Состоящий в группе - %s. %s Под id: %s. %s".formatted(name, "\n", group, "\n", ulearn,"\n");
+    }
 }

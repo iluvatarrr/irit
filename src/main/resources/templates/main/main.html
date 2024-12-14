@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Главная</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+</head>
+<body>
+    <header class="header">
+        <nav class="main-nav">
+            <p class="logo"><a href="/main/main">JavaRTFAnalytics</a></p>
+            <ul class="site-navigation">
+                <li class="site-navigation-item">
+                    <a href="/students/all">Студенты</a>
+                </li>
+                <li class="site-navigation-item">
+                    <a href="/charts/mouth-chart">Успеваемость по месяцам</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="column">
+                <div class="hero-inform">
+                    <h1>Пункт управления проектом!</h1>
+                    <p>Тут вы можете сделать запрос к VKapi, чтобы заполнить БД информацией.
+                        В рассчетах будут использоваться только те студенты, у который установлена дата рождения
+                    </p>
+                    <div class="buttons">
+                        <form th:method="POST" th:action="@{/students/update}">
+                            <button class="orange-button big-button" type="submit">Заполнить БД</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="join-content">
+                    <h3>Диаграммы в этом проекте реализованы с помощью JFreeChart</h3>
+                    <div th:if="${#lists.isEmpty(groups)}">
+                        <p>Данные не сформированы, нажмите кнопку и подождите, пока страница закончит загрузку.
+                            После перезагрузите страницу</p>
+                        <a href="/main/main">Нажмите сюда, чтобы перезагрузить страницу</a>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(groups)}">
+                        <img th:src="@{/main/piechart}" alt="График" />
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
