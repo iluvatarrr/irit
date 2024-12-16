@@ -12,10 +12,11 @@ import java.util.List;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class StudentsDTO {
-    public Integer id;
-    public String name;
-    public Date birthday;
-    public String group;
-    public String ulearn;
+    Integer id;
+    String name;
+    Date birthday;
+    String group;
+    String ulearn;
 }

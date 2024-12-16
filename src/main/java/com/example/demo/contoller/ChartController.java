@@ -1,22 +1,12 @@
 package com.example.demo.contoller;
 
-import com.example.demo.model.Student;
 import com.example.demo.service.ChartService;
-import com.example.demo.service.StudentEntityService;
+import com.example.demo.service.GroupEntityService;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -24,14 +14,36 @@ import java.io.OutputStream;
 @RequestMapping("/charts")
 public class ChartController {
     private final ChartService chartService;
+    private final GroupEntityService groupEntityService;
 
-    public ChartController(ChartService chartService) {
+    public ChartController(ChartService chartService, GroupEntityService groupEntityService) {
         this.chartService = chartService;
+        this.groupEntityService = groupEntityService;
+    }
+
+    @GetMapping("/main")
+    public String getMainPage(Model model) {
+        var groups = groupEntityService.findAll();
+        model.addAttribute("groups", groups);
+        return "charts/main";
+    }
+
+    @GetMapping("/piechart")
+    public void getPieChart(HttpServletResponse response) throws IOException {
+        response.setContentType("image/png");
+        try (OutputStream out = response.getOutputStream()) {
+            ChartUtils.writeChartAsPNG(out, chartService.setJFreeChartForCirlce().getChart(), 600, 400);
+        }
     }
 
     @GetMapping("/mouth-chart")
-    public String getMouthChart(HttpServletResponse response){
+    public String getMouthChart(){
         return "charts/mouth-chart";
+    }
+
+    @GetMapping("/mouth-chart-dot")
+    public String getMouthChartDot(){
+        return "charts/mouth-chart-dot";
     }
 
     @GetMapping("/student/{id}")
@@ -42,6 +54,35 @@ public class ChartController {
         }
     }
 
+    @GetMapping("/mouth-chart-dot/image-all")
+    public void generateScatterPlot(HttpServletResponse response) throws IOException {
+        response.setContentType("image/png");
+        ChartUtils.writeChartAsPNG(response.getOutputStream(), chartService.setScatterPlot(), 1000, 600);
+    }
+
+    @GetMapping("/mouth-chart-dot/image-home")
+    public void getMouthChartDotImageHome(HttpServletResponse response) throws IOException {
+        response.setContentType("image/png");
+        try (OutputStream out = response.getOutputStream()) {
+            ChartUtils.writeChartAsPNG(out, chartService.setJFreeChartDotForMouthHome(), 1000, 600);
+        }
+    }
+
+    @GetMapping("/mouth-chart-dot/image-question")
+    public void getMouthChartDotImageQuestion(HttpServletResponse response) throws IOException {
+        response.setContentType("image/png");
+        try (OutputStream out = response.getOutputStream()) {
+            ChartUtils.writeChartAsPNG(out, chartService.setJFreeChartDotForMouthQuestion(), 1000, 600);
+        }
+    }
+
+    @GetMapping("/mouth-chart-dot/image-exercises")
+    public void getMouthChartDotImageExercises(HttpServletResponse response) throws IOException {
+        response.setContentType("image/png");
+        try (OutputStream out = response.getOutputStream()) {
+            ChartUtils.writeChartAsPNG(out, chartService.setJFreeChartDotForMouthExercises(), 1000, 600);
+        }
+    }
     @GetMapping("/mouth-chart/image-all")
     public void getMouthChartImageAll(HttpServletResponse response) throws IOException {
         response.setContentType("image/png");

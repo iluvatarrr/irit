@@ -7,13 +7,16 @@
     <body>
         <header>
             <nav class="main-nav">
-                <p class="logo"><a href="/main/main">JavaRTFAnalytics</a></p>
+                <h1 class="logo"><a href="/charts/main">JavaRTFAnalytics</a></h1>
                 <ul class="site-navigation">
                     <li class="site-navigation-item">
                         <a href="/students/all">Студенты</a>
                     </li>
                     <li class="site-navigation-item">
-                        <a href="/charts/mouth-chart">Успеваемость по месяцам</a>
+                        <a href="/charts/mouth-chart">Успеваемость по месяцам - Столбчатые</a>
+                    </li>
+                    <li class="site-navigation-item">
+                        <a href="/charts/mouth-chart-dot">Успеваемость по месяцам - Точечные</a>
                     </li>
                 </ul>
             </nav>
@@ -26,7 +29,6 @@
                 </div>
                 <div>
                     <a th:if="${currentPage > 0}" th:href="@{/students/all(page=${currentPage - 1})}">Previous</a>
-
                     <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                         <span th:if="${i == currentPage}">
                             <strong th:text="${i + 1}"></strong>

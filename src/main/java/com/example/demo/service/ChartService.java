@@ -25,23 +25,29 @@ import java.util.List;
 public class ChartService {
 
     private final StudentEntityService studentEntityService;
-    private final List<StudentEntity> students;
-    private final List<StudentEntity> studentsWithBirthDay;
+    private List<StudentEntity> students;
+    private List<StudentEntity> studentsWithBirthDay;
+
     @Autowired
     public ChartService(StudentEntityService studentEntityService) {
         this.studentEntityService = studentEntityService;
+    }
+
+    private void updateData() {
         students = studentEntityService.findAll();
         studentsWithBirthDay = students.stream().filter(s -> s.getBirthday() != null).toList();
     }
 
     private DefaultPieDataset setDataForCircle() {
         DefaultPieDataset dataset = new DefaultPieDataset();
+        if (students == null) updateData();
         dataset.setValue("Найдены", studentsWithBirthDay.size());
         dataset.setValue("Не найдены", students.stream().filter(s -> s.getBirthday() == null).count());
         return dataset;
     }
 
     public JFreeChart setJFreeChartById(int id) {
+        if (students != null) updateData();
         var s = studentEntityService.findByIdLocal(id);
         XYSeriesCollection dataset = createDataset(s);
         JFreeChart areaChart = ChartFactory.createXYAreaChart(
@@ -55,6 +61,7 @@ public class ChartService {
     }
 
     private XYSeriesCollection createDataset(StudentEntity studentEntity) {
+        if (students == null) updateData();
         var series1 = new XYSeries("Результаты Ученика");
         var studentScore = studentEntity.getThemeList().stream().map(ThemeEntity::getFullScoreByPerson).map(s -> s.getQuestionMax() + s.getExerciseMax() + s.getHomeTaskMax()).skip(1).toList();
         var taskScore = studentEntity.getThemeList().stream().map(ThemeEntity::getFullScoreByItem).map(s -> s.getQuestionMax() + s.getExerciseMax() + s.getHomeTaskMax()).skip(1).toList();
@@ -146,6 +153,7 @@ public class ChartService {
     }
 
     private List<ItemDataEntity> getItemDataForMonth(Month m) {
+        if (students == null) updateData();
         var studentdWithMouth = studentsWithBirthDay.stream()
                 .filter(s -> s.getBirthday()
                         .toInstant()
@@ -158,5 +166,74 @@ public class ChartService {
                         .stream()
                         .filter(t -> t.getTitle().equals("За весь курс"))
                         .map(ThemeEntity::getFullScoreByPerson).limit(1)).toList();
+    }
+
+    public JFreeChart setScatterPlot() {
+        XYSeriesCollection dataset = getXySeriesCollectionAll();
+        return setJFreeChartDotForMouth("Весь курс",dataset);
+    }
+
+    private XYSeriesCollection getXySeriesCollectionAll() {
+        XYSeries series = new XYSeries("Максимальный балл за курс");
+        for (var m : Month.values()) {
+            var itemsData = getItemDataForMonth(m).stream().map(i -> i.getExerciseMax() + i.getHomeTaskMax() + i.getQuestionMax()).toList();
+            for (var s : itemsData) {
+                series.add(m.getNumber(), s);
+            }
+        }
+        return new XYSeriesCollection(series);
+    }
+
+    private XYSeriesCollection getXySeriesCollectionHome() {
+        XYSeries series = new XYSeries("Максимальный балл за курс");
+        for (var m : Month.values()) {
+            var itemsData = getItemDataForMonth(m).stream().map(ItemDataEntity::getHomeTaskMax).toList();
+            for (var s : itemsData) {
+                series.add(m.getNumber(), s);
+            }
+        }
+        return new XYSeriesCollection(series);
+    }
+    private XYSeriesCollection getXySeriesCollectionQuestion() {
+        XYSeries series = new XYSeries("Максимальный балл за курс");
+        for (var m : Month.values()) {
+            var itemsData = getItemDataForMonth(m).stream().map(ItemDataEntity::getQuestionMax).toList();
+            for (var s : itemsData) {
+                series.add(m.getNumber(), s);
+            }
+        }
+        return new XYSeriesCollection(series);
+    }
+
+    private XYSeriesCollection getXySeriesCollectionExercises() {
+        XYSeries series = new XYSeries("Максимальный балл за курс");
+        for (var m : Month.values()) {
+            var itemsData = getItemDataForMonth(m).stream().map(ItemDataEntity::getExerciseMax).toList();
+            for (var s : itemsData) {
+                series.add(m.getNumber(), s);
+            }
+        }
+        return new XYSeriesCollection(series);
+    }
+
+    public JFreeChart setJFreeChartDotForMouthHome() {
+        return setJFreeChartDotForMouth("Практики", getXySeriesCollectionHome());
+    }
+
+    public JFreeChart setJFreeChartDotForMouthQuestion() {
+        return setJFreeChartDotForMouth("Вопросы", getXySeriesCollectionQuestion());
+    }
+
+    public JFreeChart setJFreeChartDotForMouthExercises() {
+        return setJFreeChartDotForMouth("Упражнения", getXySeriesCollectionExercises());
+    }
+
+    public JFreeChart setJFreeChartDotForMouth(String s, XYSeriesCollection categoryDataset) {
+        return ChartFactory.createScatterPlot(
+                "Значения успеваемости по месяцам за %s".formatted(s),
+                "Номера месяцев",
+                "Баллы",
+                categoryDataset
+        );
     }
 }

@@ -1,8 +1,6 @@
 package com.example.demo.contoller;
 
 import com.example.demo.dto.StudentsDTO;
-import com.example.demo.entity.StudentEntity;
-import com.example.demo.model.Student;
 import com.example.demo.service.GroupEntityService;
 import com.example.demo.service.StudentEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +41,8 @@ public class StudentController {
 
     @PostMapping("/update")
     public String updateData() {
-        if (!groupEntityService.findAll().isEmpty()) return "main/main";
+        if (!groupEntityService.findAll().isEmpty()) return "charts/main";
         studentEntityService.saveStudents(studentEntityService.getParseData("src/main/resources/static/schema/itisbaase.csv"));
-        return "main/main";
+        return "charts/main";
     }
 }
